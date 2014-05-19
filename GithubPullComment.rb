@@ -6,53 +6,53 @@ require 'trollop'
 
 #options
 opts = Trollop::options do  
-    opt :commit,
-    'COMMIT SHA',
-    :short => '-c',
+    opt :username,
+    "USERNAME",
+    :short => '-u',
     :type => :string,
-    :default => nil
-
-    opt :pull_request_id,
-    'PULL_REQUEST_ID',
-    :short => '-i',
-    :type => :integer,
-    :default => nil
-
+    :required => true
+    
+    opt :password,
+    "PASSWORD",
+    :short => '-p',
+    :type => :string,
+    :required => true
+    
     opt :repo,
-    'REPO',
+    'REPOSITORY',
     :short => '-r',
     :type => :string,
-    :default => nil
+    :required => true
 
-    opt :line,
-    'LINE_OF_FILE',
-    :short => '-l',
+    opt :pull_request_id,
+    'PULL REQUEST ID',
+    :short => '-i',
     :type => :integer,
-    :default => 1
+    :required => true
+        
+    opt :commit,
+    'COMMIT SHA KEY',
+    :short => '-c',
+    :type => :string,
+    :required => true
 
     opt :body,
-    'COMMENT_BODY',
+    'COMMENT BODY',
     :short => '-b',
     :type => :string,
     :default => "Test Failed"
 
     opt :file,
-    'FILE_TO_COMMENT',
+    'FILE TO COMMENT',
     :short => '-f',
     :type => :string,
-    :default => nil
+    :required => true
     
-    opt :username,
-    "Username",
-    :short => '-u',
-    :type => :string,
-    :default => nil
-    
-    opt :password,
-    "Password",
-    :short => '-p',
-    :type => :string,
-    :default => nil
+    opt :line,
+    'LINE OF FILE',
+    :short => '-l',
+    :type => :integer,
+    :default => 1
 end
 
 # Provide authentication credentials for OctoKit
@@ -61,6 +61,7 @@ Octokit.configure do |c|
   c.password = opts[:password]
 end
 
+#issue request to github API
 Octokit.create_pull_request_comment(
         opts[:repo], 
         opts[:pull_request_id], "#{opts[:body]} - line #{opts[:line]}", 

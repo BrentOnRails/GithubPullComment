@@ -55,7 +55,7 @@ opts = Trollop::options do
     :default => nil
 end
 
-# # Provide authentication credentials
+# Provide authentication credentials for OctoKit
 Octokit.configure do |c|
   c.login = opts[:username]
   c.password = opts[:password]

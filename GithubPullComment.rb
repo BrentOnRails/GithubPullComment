@@ -5,6 +5,7 @@ require 'trollop'
 
 #options
 opts = Trollop::options do  
+    #required for all types of pull request comment 
     opt :username,
     "USERNAME",
     :short => '-u',
@@ -24,34 +25,32 @@ opts = Trollop::options do
     :required => true
 
     opt :pull_request_id,
-    'PULL REQUEST ID',
+    'PULL REQUEST ID (aka ISSUE ID)',
     :short => '-i',
-    :type => :integer,
-    :required => true
-        
-    opt :commit,
-    'COMMIT SHA KEY',
-    :short => '-c',
-    :type => :string,
-    :required => true
-
+    :type => :integer
+    
     opt :body,
     'COMMENT BODY',
     :short => '-b',
     :type => :string,
     :default => "Test Failed"
-
+    
+    #required for per commit comment OR in line comment (all above options required)
+    opt :commit,
+    'COMMIT SHA (if PER COMMIT comment)',
+    :short => '-c',
+    :type => :string
+    
+    #required for in line comment (all above options required)
     opt :file,
-    'FILE TO COMMENT',
+    'FILE TO COMMENT (if INLINE comment)',
     :short => '-f',
-    :type => :string,
-    :required => true
+    :type => :string
     
     opt :line,
-    'LINE OF FILE',
+    'LINE OF FILE (if INLINE comment)',
     :short => '-l',
-    :type => :integer,
-    :default => 1
+    :type => :integer
 end
 
 # Provide authentication credentials for OctoKit
@@ -60,11 +59,28 @@ Octokit.configure do |c|
   c.password = opts[:password]
 end
 
-#issue request to github API
-Octokit.create_pull_request_comment(
+if opts[:file] && opts[:line]
+    #IN LINE COMMENT
+    Octokit.create_pull_request_comment(
         opts[:repo], 
-        opts[:pull_request_id], "#{opts[:body]} - line #{opts[:line]}", 
+        opts[:pull_request_id],
+        "#{opts[:body]} - line #{opts[:line]}", 
         opts[:commit], 
         opts[:file], 
         opts[:line]
-)
+    )
+elsif opts[:commit]
+    #PER COMMIT COMMENT
+    Octokit.create_commit_comment(
+        opts[:repo], 
+        opts[:commit],
+        opts[:body], 
+    )
+else
+    #PULL REQUEST COMMENT
+    Octokit.add_comment(
+        opts[:repo],
+        opts[:pull_request_id],
+        opts[:body]
+    )
+end

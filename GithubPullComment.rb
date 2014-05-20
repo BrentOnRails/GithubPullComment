@@ -4,6 +4,8 @@ require 'octokit'
 require 'trollop'
 
 #options
+#change some stuff to test new branch
+
 opts = Trollop::options do  
     #required for all types of pull request comment 
     opt :username,
